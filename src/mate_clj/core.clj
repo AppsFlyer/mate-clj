@@ -70,3 +70,28 @@
        (println `(~f ~val ~(first coll)) "=>" (f val (first coll)))
        (recur f (f val (first coll)) (rest coll)))
      val)))
+
+(defmacro dcond->
+  [expr & clauses]
+  (assert (even? (count clauses)))
+  (loop [x expr, clauses clauses]
+    (if clauses
+      (let [test (first clauses)
+            step (second clauses)
+            pass-test (eval test)
+            threaded (if pass-test
+                       (if (seq? step)
+                         (with-meta `(~(first step) ~x ~@(next step)) (meta step))
+                         (list step x))
+                       x)]
+        (when pass-test (println threaded "=>" (eval threaded)))
+        (recur threaded (next (next clauses))))
+      x)))
+
+(comment
+  (dcond-> 1
+           true inc
+           (= 3 2) (* 42)
+           true (+ 100)
+           (= 2 2) (* 9))
+)
