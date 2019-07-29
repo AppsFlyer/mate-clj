@@ -120,3 +120,33 @@
            true (+ 100)
            (= 2 2) (* 9))
 )
+
+
+(defmacro das->
+  [expr name & forms]
+  (let [t (gensym)]
+    `(let [~name ~expr
+           ~t (println '~name " => " ~name)
+           ~@(interleave
+              (repeat name)
+              (butlast forms)
+              (repeat t)
+              (repeat `(println '~name " => " ~name)))]
+       ~(if (empty? forms)
+          name
+          `(do
+            (println '~name " => " ~(last forms))
+            ~(last forms))))))
+
+
+(comment
+  (das-> 0 n
+         (inc n)
+         (+ n n) ; n is 0 here passed from first parameter to as->
+         (+ n 2 3 4))
+
+
+  (macroexpand-1 '(das-> 0 n
+                         (inc n)
+                         (+ n n) ; n is 0 here passed from first parameter to as->
+                         (+ n 2 3 4))))
