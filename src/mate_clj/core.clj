@@ -88,14 +88,6 @@
         (recur threaded (next (next clauses))))
       x)))
 
-(comment
-  (dcond-> 1
-           true inc
-           (= 3 2) (* 42)
-           true (+ 100)
-           (= 2 2) (* 9))
-)
-
 (defmacro dcond->>
   [expr & clauses]
   (assert (even? (count clauses)))
@@ -113,14 +105,6 @@
         (recur threaded (next (next clauses))))
       x)))
 
-(comment
-  (dcond->> 1
-           true inc
-           (= 3 2) (* 42)
-           true (+ 100)
-           (= 2 2) (* 9))
-)
-
 (defmacro das->
   [expr name & clauses]
   (let [c (gensym) s (gensym) t (gensym)]
@@ -132,27 +116,9 @@
                  ~t (if (seq? ~s)
                       (with-meta `(~(first ~s) ~@(next (map #(if (= % '~name) ~name %) ~s))) (meta ~s))
                       (if
-                       (= ~s '~name)
+                        (= ~s '~name)
                         ~name
                         ~s))]
              (println ~s "=>" (eval ~t))
              (recur (eval ~t) (next ~c)))
-       ~name)))))
-
-(comment
- (das-> 1 n
-         (* 2 n)
-         (+ n n) ; n is 0 here passed from first parameter to as->
-         (+ n 2 3 4))
-
-  (das-> 0 n
-         (inc n)
-         (+ n n) ; n is 0 here passed from first parameter to as->
-         (+ n 2 3 4))
-
-
-  (macroexpand-1 '(das-> 0 n
-                         (inc n)
-                         (+ n n) ; n is 0 here passed from first parameter to as->
-                         (+ n 2 3 4)))
-)
+          ~name)))))
