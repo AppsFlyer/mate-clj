@@ -14,7 +14,7 @@ Mate-clj is a Clojure library that will help you to control the flow of core mac
 
 Add the dependency to your project.clj:
 ```clojure
-[mate-clj "0.1.3"]
+[mate-clj "0.1.4"]
 ```
 
 ## Usage:
@@ -38,6 +38,25 @@ user=> (mate/dreduce + [1 3 5 7 9])
 (#function[clojure.core/+] 16 9) => 25
 25 ;the returned value
 
+user=> (mate/dcond->> 1
+                      true inc
+                      (= 3 2) (* 42)
+                      true (+ 100)
+                      (= 2 2) (* 9))
+(inc 1) => 2
+(+ 100 (inc 1)) => 102
+(* 9 (+ 100 (inc 1))) => 918
+918 ;the returned value
+
+user=> (mate/das-> 1 n
+                   (* 2 n)
+                   (+ n n)
+                   (+ n 2 3 4))
+n => 1
+(* 2 n) => 2
+(+ n n) => 4
+(+ n 2 3 4) => 13
+13 ;the returned value
 ```
 
 
