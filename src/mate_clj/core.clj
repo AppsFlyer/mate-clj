@@ -88,14 +88,6 @@
         (recur threaded (next (next clauses))))
       x)))
 
-(comment
-  (dcond-> 1
-           true inc
-           (= 3 2) (* 42)
-           true (+ 100)
-           (= 2 2) (* 9))
-)
-
 (defmacro dcond->>
   [expr & clauses]
   (assert (even? (count clauses)))
@@ -106,17 +98,27 @@
             pass-test (eval test)
             threaded (if pass-test
                        (if (seq? step)
-                         (with-meta `(~(first step) ~@(next step)  ~x) (meta step))
+                         (with-meta `(~(first step) ~@(next step) ~x) (meta step))
                          (list step x))
                        x)]
         (when pass-test (println threaded "=>" (eval threaded)))
         (recur threaded (next (next clauses))))
       x)))
 
-(comment
-  (dcond->> 1
-           true inc
-           (= 3 2) (* 42)
-           true (+ 100)
-           (= 2 2) (* 9))
-)
+(defmacro das->
+  [expr name & clauses]
+  (let [c (gensym) s (gensym) t (gensym)]
+    `(let [~name ~expr]
+       (println '~name "=>" ~expr)
+       (loop [~name ~expr, ~c '~clauses]
+         (if ~c
+           (let [~s (first ~c)
+                 ~t (if (seq? ~s)
+                      (with-meta `(~(first ~s) ~@(next (map #(if (= % '~name) ~name %) ~s))) (meta ~s))
+                      (if
+                        (= ~s '~name)
+                        ~name
+                        ~s))]
+             (println ~s "=>" (eval ~t))
+             (recur (eval ~t) (next ~c)))
+          ~name)))))
