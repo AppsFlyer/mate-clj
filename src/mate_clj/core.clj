@@ -152,6 +152,12 @@
              (cons f (dfilter pred r))
              (dfilter pred r)))))))
 
+(defn dremove
+  ([pred] (dfilter (complement pred)))
+  ([pred coll]
+     (dfilter (complement pred) coll)))
+
+
 (comment
   (def xf (dfilter odd?))
   (transduce xf conj (range 10))
