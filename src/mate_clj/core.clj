@@ -122,3 +122,49 @@
              (println ~s "=>" (eval ~t))
              (recur (eval ~t) (next ~c)))
           ~name)))))
+
+(defn dfilter
+  ([pred]
+    (fn [rf]
+      (fn
+        ([] (rf))
+        ([result] (rf result))
+        ([result input]
+         (println pred input "=> " (pred input))
+         (if (pred input)
+           (rf result input)
+           result)))))
+  ([pred coll]
+     (when-let [s (seq coll)]
+       (if (chunked-seq? s)
+         (let [c (chunk-first s)
+               size (count c)
+               b (chunk-buffer size)]
+           (dotimes [i size]
+             (let [v (.nth c i)]
+               (println pred v "=> " (pred v))
+               (when (pred v)
+                 (chunk-append b v))))
+           (chunk-cons (chunk b) (dfilter pred (chunk-rest s))))
+         (let [f (first s) r (rest s)]
+           (println pred f "=> " (pred f))
+           (if (pred f)
+             (cons f (dfilter pred r))
+             (dfilter pred r)))))))
+
+(comment
+  (def xf (dfilter odd?))
+  (transduce xf conj (range 10))
+
+  (dfilter even? [1 2 3 4 5 6])
+
+  (dfilter (fn [x]
+             (= (count x) 1))
+           ["a" "aa" "b" "n" "f" "lisp" "clojure" "q" ""])
+
+  (dfilter #(> (second %) 100)
+           {:a 1
+            :b 2
+            :c 101
+            :d 102
+            :e -1}))
