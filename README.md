@@ -14,7 +14,7 @@ Mate-clj is a Clojure library that will help you to control the flow of core mac
 
 Add the dependency to your project.clj:
 ```clojure
-[mate-clj "0.1.4"]
+[mate-clj "0.1.5"]
 ```
 
 ## Usage:
@@ -57,6 +57,15 @@ n => 1
 (+ n n) => 4
 (+ n 2 3 4) => 13
 13 ;the returned value
+
+user=> (dfilter even? [1  2  3  4  5  6])
+#function[clojure.core/even?] 1 => false
+#function[clojure.core/even?] 2 => true
+#function[clojure.core/even?] 3 => false
+#function[clojure.core/even?] 4 => true
+#function[clojure.core/even?] 5 => false
+#function[clojure.core/even?] 6 => true
+(2 4 6) ;the returned value
 ```
 
 
