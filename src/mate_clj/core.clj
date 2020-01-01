@@ -70,3 +70,89 @@
        (println `(~f ~val ~(first coll)) "=>" (f val (first coll)))
        (recur f (f val (first coll)) (rest coll)))
      val)))
+
+(defmacro dcond->
+  [expr & clauses]
+  (assert (even? (count clauses)))
+  (loop [x expr, clauses clauses]
+    (if clauses
+      (let [test (first clauses)
+            step (second clauses)
+            pass-test (eval test)
+            threaded (if pass-test
+                       (if (seq? step)
+                         (with-meta `(~(first step) ~x ~@(next step)) (meta step))
+                         (list step x))
+                       x)]
+        (when pass-test (println threaded "=>" (eval threaded)))
+        (recur threaded (next (next clauses))))
+      x)))
+
+(defmacro dcond->>
+  [expr & clauses]
+  (assert (even? (count clauses)))
+  (loop [x expr, clauses clauses]
+    (if clauses
+      (let [test (first clauses)
+            step (second clauses)
+            pass-test (eval test)
+            threaded (if pass-test
+                       (if (seq? step)
+                         (with-meta `(~(first step) ~@(next step) ~x) (meta step))
+                         (list step x))
+                       x)]
+        (when pass-test (println threaded "=>" (eval threaded)))
+        (recur threaded (next (next clauses))))
+      x)))
+
+(defmacro das->
+  [expr name & clauses]
+  (let [c (gensym) s (gensym) t (gensym)]
+    `(let [~name ~expr]
+       (println '~name "=>" ~expr)
+       (loop [~name ~expr, ~c '~clauses]
+         (if ~c
+           (let [~s (first ~c)
+                 ~t (if (seq? ~s)
+                      (with-meta `(~(first ~s) ~@(next (map #(if (= % '~name) ~name %) ~s))) (meta ~s))
+                      (if
+                        (= ~s '~name)
+                        ~name
+                        ~s))]
+             (println ~s "=>" (eval ~t))
+             (recur (eval ~t) (next ~c)))
+          ~name)))))
+
+(defn dfilter
+  ([pred]
+   (fn [rf]
+     (fn
+       ([] (rf))
+       ([result] (rf result))
+       ([result input]
+        (println pred input "=>" (pred input))
+        (if (pred input)
+          (rf result input)
+          result)))))
+  ([pred coll]
+   (when-let [s (seq coll)]
+     (if (chunked-seq? s)
+       (let [c (chunk-first s)
+             size (count c)
+             b (chunk-buffer size)]
+         (dotimes [i size]
+           (let [v (.nth c i)]
+             (println pred v "=>" (pred v))
+             (when (pred v)
+               (chunk-append b v))))
+         (chunk-cons (chunk b) (dfilter pred (chunk-rest s))))
+       (let [f (first s) r (rest s)]
+         (println pred f "=>" (pred f))
+         (if (pred f)
+           (cons f (dfilter pred r))
+           (dfilter pred r)))))))
+
+(defn dremove
+  ([pred] (dfilter (complement pred)))
+  ([pred coll]
+   (dfilter (complement pred) coll)))
