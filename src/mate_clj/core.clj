@@ -174,3 +174,28 @@
         (println pred (first s) " => " (pred (first s)))
         (when (pred (first s))
           (cons (first s) (dtake-while pred (rest s))))))))
+
+
+(defn ddrop-while
+  ([pred]
+     (fn [rf]
+       (let [dv (volatile! true)]
+         (fn
+           ([] (rf))
+           ([result] (rf result))
+           ([result input]
+              (let [drop? @dv]
+	 	(println pred input " => " (pred input))
+                (if (and drop? (pred input))
+                  result
+                  (do
+                    (vreset! dv nil)
+                    (rf result input)))))))))
+  ([pred coll]
+     (let [step (fn [pred coll]
+                  (let [s (seq coll)]
+		    (println pred (first s) " => " (pred (first s)))
+                    (if (and s (pred (first s)))
+                      (recur pred (rest s))
+                      s)))]
+       (lazy-seq (step pred coll)))))
