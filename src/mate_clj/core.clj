@@ -199,3 +199,7 @@
                       (recur pred (rest s))
                       s)))]
        (lazy-seq (step pred coll)))))
+
+(defn dsplit-with
+  [pred coll]
+    [(dtake-while pred coll) (ddrop-while pred coll)])
