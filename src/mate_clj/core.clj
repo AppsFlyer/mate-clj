@@ -156,3 +156,21 @@
   ([pred] (dfilter (complement pred)))
   ([pred coll]
    (dfilter (complement pred) coll)))
+
+(defn dtake-while
+  ([pred]
+     (fn [rf]
+       (fn
+         ([] (rf))
+         ([result] (rf result))
+         ([result input]
+            (println pred input " => " (pred input))
+            (if (pred input)
+              (rf result input)
+              (reduced result))))))
+  ([pred coll]
+    (lazy-seq
+      (when-let [s (seq coll)]
+        (println pred (first s) " => " (pred (first s)))
+        (when (pred (first s))
+          (cons (first s) (dtake-while pred (rest s))))))))
