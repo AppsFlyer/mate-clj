@@ -183,17 +183,17 @@
            ([] (rf))
            ([result] (rf result))
            ([result input]
-              (let [drop? @dv]
-	 	(println pred input "=>" (pred input))
-                (if (and drop? (pred input))
-                  result
-                  (do
-                    (vreset! dv nil)
-                    (rf result input)))))))))
+            (let [drop? @dv]
+              (println pred input "=>" (pred input))
+              (if (and drop? (pred input))
+                result
+                (do
+                  (vreset! dv nil)
+                  (rf result input)))))))))
   ([pred coll]
      (let [step (fn [pred coll]
                   (let [s (seq coll)]
-		    (println pred (first s) "=>" (pred (first s)))
+                    (println pred (first s) "=>" (pred (first s)))
                     (if (and s (pred (first s)))
                       (recur pred (rest s))
                       s)))]
