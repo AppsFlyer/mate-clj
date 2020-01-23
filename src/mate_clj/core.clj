@@ -164,17 +164,16 @@
          ([] (rf))
          ([result] (rf result))
          ([result input]
-            (println pred input " => " (pred input))
+            (println pred input "=>" (pred input))
             (if (pred input)
               (rf result input)
               (reduced result))))))
   ([pred coll]
     (lazy-seq
       (when-let [s (seq coll)]
-        (println pred (first s) " => " (pred (first s)))
+        (println pred (first s) "=>" (pred (first s)))
         (when (pred (first s))
           (cons (first s) (dtake-while pred (rest s))))))))
-
 
 (defn ddrop-while
   ([pred]
@@ -185,7 +184,7 @@
            ([result] (rf result))
            ([result input]
               (let [drop? @dv]
-	 	(println pred input " => " (pred input))
+	 	(println pred input "=>" (pred input))
                 (if (and drop? (pred input))
                   result
                   (do
@@ -194,7 +193,7 @@
   ([pred coll]
      (let [step (fn [pred coll]
                   (let [s (seq coll)]
-		    (println pred (first s) " => " (pred (first s)))
+		    (println pred (first s) "=>" (pred (first s)))
                     (if (and s (pred (first s)))
                       (recur pred (rest s))
                       s)))]
