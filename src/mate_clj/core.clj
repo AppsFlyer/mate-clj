@@ -159,46 +159,45 @@
 
 (defn dtake-while
   ([pred]
-     (fn [rf]
+   (fn [rf]
+     (fn
+       ([] (rf))
+       ([result] (rf result))
+       ([result input]
+        (println pred input "=>" (pred input))
+        (if (pred input)
+          (rf result input)
+          (reduced result))))))
+  ([pred coll]
+   (lazy-seq
+     (when-let [s (seq coll)]
+       (println pred (first s) "=>" (pred (first s)))
+       (when (pred (first s))
+         (cons (first s) (dtake-while pred (rest s))))))))
+
+(defn ddrop-while
+  ([pred]
+   (fn [rf]
+     (let [dv (volatile! true)]
        (fn
          ([] (rf))
          ([result] (rf result))
          ([result input]
+          (let [drop? @dv]
             (println pred input "=>" (pred input))
-            (if (pred input)
-              (rf result input)
-              (reduced result))))))
+            (if (and drop? (pred input))
+              result
+              (do
+                (vreset! dv nil)
+                (rf result input)))))))))
   ([pred coll]
-    (lazy-seq
-      (when-let [s (seq coll)]
-        (println pred (first s) "=>" (pred (first s)))
-        (when (pred (first s))
-          (cons (first s) (dtake-while pred (rest s))))))))
+   (let [step (fn [pred coll]
+                (let [s (seq coll)]
+                  (println pred (first s) "=>" (pred (first s)))
+                  (if (and s (pred (first s)))
+                    (recur pred (rest s))
+                    s)))]
+     (lazy-seq (step pred coll)))))
 
-(defn ddrop-while
-  ([pred]
-     (fn [rf]
-       (let [dv (volatile! true)]
-         (fn
-           ([] (rf))
-           ([result] (rf result))
-           ([result input]
-            (let [drop? @dv]
-              (println pred input "=>" (pred input))
-              (if (and drop? (pred input))
-                result
-                (do
-                  (vreset! dv nil)
-                  (rf result input)))))))))
-  ([pred coll]
-     (let [step (fn [pred coll]
-                  (let [s (seq coll)]
-                    (println pred (first s) "=>" (pred (first s)))
-                    (if (and s (pred (first s)))
-                      (recur pred (rest s))
-                      s)))]
-       (lazy-seq (step pred coll)))))
-
-(defn dsplit-with
-  [pred coll]
-    [(dtake-while pred coll) (ddrop-while pred coll)])
+(defn dsplit-with [pred coll]
+  [(dtake-while pred coll) (ddrop-while pred coll)])
