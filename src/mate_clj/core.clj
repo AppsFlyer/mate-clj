@@ -30,12 +30,12 @@
       (let [form (first forms)
             threaded (if (seq? form)
                        (with-meta `(~(first form) ~x ~@(next form)) (meta form))
-                       (list form x))]
-        (let [expr (eval threaded)]
+                       (list form x))
+            expr (eval threaded)]
           (println threaded "=>" expr)
           (if-not (nil? expr)
             (recur threaded (next forms))
-            nil)))
+            nil))
       x)))
 
 (defmacro dsome->> [x & forms]
@@ -44,12 +44,12 @@
        (let [form (first forms)
              threaded (if (seq? form)
                         (with-meta `(~(first form) ~@(next form)  ~x) (meta form))
-                        (list form x))]
-         (let [expr (eval threaded)]
+                        (list form x))
+             expr (eval threaded)]
            (println threaded "=>" expr)
            (if-not (nil? expr)
              (recur threaded (next forms))
-             nil)))
+             nil))
        x)))
 
 (defn dsome
@@ -159,45 +159,45 @@
 
 (defn dtake-while
   ([pred]
-     (fn [rf]
+   (fn [rf]
+     (fn
+       ([] (rf))
+       ([result] (rf result))
+       ([result input]
+        (println pred input "=>" (pred input))
+        (if (pred input)
+          (rf result input)
+          (reduced result))))))
+  ([pred coll]
+   (lazy-seq
+    (when-let [s (seq coll)]
+      (println pred (first s) "=>" (pred (first s)))
+      (when (pred (first s))
+        (cons (first s) (dtake-while pred (rest s))))))))
+
+(defn ddrop-while
+  ([pred]
+   (fn [rf]
+     (let [dv (volatile! true)]
        (fn
          ([] (rf))
          ([result] (rf result))
          ([result input]
+          (let [drop? @dv]
             (println pred input "=>" (pred input))
-            (if (pred input)
-              (rf result input)
-              (reduced result))))))
+            (if (and drop? (pred input))
+              result
+              (do
+                (vreset! dv nil)
+                (rf result input)))))))))
   ([pred coll]
-    (lazy-seq
-      (when-let [s (seq coll)]
-        (println pred (first s) "=>" (pred (first s)))
-        (when (pred (first s))
-          (cons (first s) (dtake-while pred (rest s))))))))
-
-(defn ddrop-while
-  ([pred]
-     (fn [rf]
-       (let [dv (volatile! true)]
-         (fn
-           ([] (rf))
-           ([result] (rf result))
-           ([result input]
-            (let [drop? @dv]
-              (println pred input "=>" (pred input))
-              (if (and drop? (pred input))
-                result
-                (do
-                  (vreset! dv nil)
-                  (rf result input)))))))))
-  ([pred coll]
-     (let [step (fn [pred coll]
-                  (let [s (seq coll)]
-                    (println pred (first s) "=>" (pred (first s)))
-                    (if (and s (pred (first s)))
-                      (recur pred (rest s))
-                      s)))]
-       (lazy-seq (step pred coll)))))
+   (let [step (fn [pred coll]
+                (let [s (seq coll)]
+                  (println pred (first s) "=>" (pred (first s)))
+                  (if (and s (pred (first s)))
+                    (recur pred (rest s))
+                    s)))]
+     (lazy-seq (step pred coll)))))
 
 (defn dsplit-with
   [pred coll]
