@@ -156,3 +156,12 @@
   ([pred] (dfilter (complement pred)))
   ([pred coll]
    (dfilter (complement pred) coll)))
+
+
+(defmacro dwhile
+  [test & body]
+  `(loop []
+     (println ~@test "=>" ~test)
+     (when ~test
+       ~@body
+       (recur))))
