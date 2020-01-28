@@ -30,12 +30,12 @@
       (let [form (first forms)
             threaded (if (seq? form)
                        (with-meta `(~(first form) ~x ~@(next form)) (meta form))
-                       (list form x))]
-        (let [expr (eval threaded)]
+                       (list form x))
+            expr (eval threaded)]
           (println threaded "=>" expr)
           (if-not (nil? expr)
             (recur threaded (next forms))
-            nil)))
+            nil))
       x)))
 
 (defmacro dsome->> [x & forms]
@@ -44,12 +44,12 @@
        (let [form (first forms)
              threaded (if (seq? form)
                         (with-meta `(~(first form) ~@(next form)  ~x) (meta form))
-                        (list form x))]
-         (let [expr (eval threaded)]
+                        (list form x))
+             expr (eval threaded)]
            (println threaded "=>" expr)
            (if-not (nil? expr)
              (recur threaded (next forms))
-             nil)))
+             nil))
        x)))
 
 (defn dsome
@@ -170,10 +170,10 @@
           (reduced result))))))
   ([pred coll]
    (lazy-seq
-     (when-let [s (seq coll)]
-       (println pred (first s) "=>" (pred (first s)))
-       (when (pred (first s))
-         (cons (first s) (dtake-while pred (rest s))))))))
+    (when-let [s (seq coll)]
+      (println pred (first s) "=>" (pred (first s)))
+      (when (pred (first s))
+        (cons (first s) (dtake-while pred (rest s))))))))
 
 (defn ddrop-while
   ([pred]
@@ -199,5 +199,6 @@
                     s)))]
      (lazy-seq (step pred coll)))))
 
-(defn dsplit-with [pred coll]
+(defn dsplit-with
+  [pred coll]
   [(dtake-while pred coll) (ddrop-while pred coll)])
