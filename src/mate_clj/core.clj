@@ -157,7 +157,6 @@
   ([pred coll]
    (dfilter (complement pred) coll)))
 
-<<<<<<< HEAD
 (defn dtake-while
   ([pred]
    (fn [rf]
