@@ -202,3 +202,11 @@
 (defn dsplit-with
   [pred coll]
   [(dtake-while pred coll) (ddrop-while pred coll)])
+
+(defmacro dwhile
+  [test & body]
+  `(loop []
+     (println ~@test "=>" ~test)
+     (when ~test
+       ~@body
+       (recur))))
