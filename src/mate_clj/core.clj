@@ -206,7 +206,7 @@
 (defmacro dwhile
   [test & body]
   `(loop []
-     (println ~@test "=>" ~test)
+     (println '~test "=>" ~test)
      (when ~test
        ~@body
        (recur))))
