@@ -224,7 +224,6 @@
               result
               (rf result v)))))))
   ([f coll]
-   ;(lazy-seq
     (when-let [s (seq coll)]
       (if (chunked-seq? s)
         (let [c (chunk-first s)
@@ -240,5 +239,5 @@
  	  (println f (first s) "=>" x)
           (if (nil? x)
             (dkeep f (rest s))
-            (cons x (dkeep f (rest s)))))))));)
+            (cons x (dkeep f (rest s)))))))))
 
