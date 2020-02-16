@@ -264,8 +264,8 @@
                        b (chunk-buffer size)]
                    (dotimes [i size]
                      (let [ind (+ idx i)
-			   nth-val (.nth c i)
-			   x (f ind nth-val)]
+                           nth-val (.nth c i)
+                           x (f ind nth-val)]
                        (println f ind nth-val "=>" x)
                        (when-not (nil? x)
                          (chunk-append b x))))
