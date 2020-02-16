@@ -210,3 +210,35 @@
      (when ~test
        ~@body
        (recur))))
+
+(defn dkeep
+  ([f]
+   (fn [rf]
+     (fn
+       ([] (rf))
+       ([result] (rf result))
+       ([result input]
+          (let [v (f input)]
+	    (println f input "=>" v)
+            (if (nil? v)
+              result
+              (rf result v)))))))
+  ([f coll]
+   ;(lazy-seq
+    (when-let [s (seq coll)]
+      (if (chunked-seq? s)
+        (let [c (chunk-first s)
+              size (count c)
+              b (chunk-buffer size)]
+          (dotimes [i size]
+            (let [x (f (.nth c i))]
+	      (println f (.nth c i) "=>" x)
+              (when-not (nil? x)
+                (chunk-append b x))))
+          (chunk-cons (chunk b) (keep f (chunk-rest s))))
+        (let [x (f (first s))]
+ 	  (println f (first s) "=>" x)
+          (if (nil? x)
+            (dkeep f (rest s))
+            (cons x (dkeep f (rest s)))))))));)
+
