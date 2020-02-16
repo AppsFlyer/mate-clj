@@ -263,8 +263,10 @@
                        size (count c)
                        b (chunk-buffer size)]
                    (dotimes [i size]
-                     (let [x (f (+ idx i) (.nth c i))]
-                       (println f (+ idx i) (.nth c i) "=>" x)
+                     (let [ind (+ idx i)
+			   nth-val (.nth c i)
+			   x (f ind nth-val)]
+                       (println f ind nth-val "=>" x)
                        (when-not (nil? x)
                          (chunk-append b x))))
                    (chunk-cons (chunk b) (keepi (+ idx size) (chunk-rest s))))
@@ -274,3 +276,4 @@
                      (keepi (inc idx) (rest s))
                      (cons x (keepi (inc idx) (rest s))))))))]
      (keepi 0 coll))))
+
