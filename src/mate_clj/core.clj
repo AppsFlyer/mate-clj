@@ -258,20 +258,20 @@
         (and r-p1-x r-p2-x)))
      ([x y]
       (let [preds (for [o [p1 p2] i [x y]] [o i])]
-	(and (map (fn [x]
-		      (let [o (first x)
-			    i (last x)
-		     	    r (boolean (o i))]
-			(println o i "=>" r)
-			r)) preds))))
+        (and (map (fn [x]
+                    (let [o (first x)
+                          i (last x)
+                          r (boolean (o i))]
+                      (println o i "=>" r)
+                      r)) preds))))
      ([x y z]
       (let [preds (for [o [p1 p2] i [x y z]] [o i])]
-	(and (map (fn [x]
-		      (let [o (first x)
-			    i (last x)
-			    r (boolean (o i))]
-			(println o i "=>" r)
-			r)) preds))))
+        (and (map (fn [x]
+                    (let [o (first x)
+                          i (last x)
+                          r (boolean (o i))]
+                      (println o i "=>" r)
+                      r)) preds))))
      ([x y z & args] (boolean (and (ep2 x y z)
                                    (devery? #(and (p1 %) (p2 %)) args))))))
   ([p1 p2 p3]
@@ -279,28 +279,28 @@
      ([] true)
      ([x]
       (let [preds (for [o [p1 p2 p3]] [o x])]
-	(and (map (fn [x] 
-		      (let [o (first x)
-			    i (last x)
-			    r (boolean (o i))]
-			(println o i "=>" r)
-			r)) preds))))
+        (and (map (fn [x]
+                    (let [o (first x)
+                          i (last x)
+                          r (boolean (o i))]
+                      (println o i "=>" r)
+                      r)) preds))))
      ([x y]
       (let [preds (for [o [p1 p2 p3] i [x y]] [o i])]
-	(and (map (fn [x] 
-		      (let [o (first x)
-			    i (last x)
-			    r (boolean (o i))]
-			   (println o i "=>" r)
-			   r)) preds))))
+        (and (map (fn [x]
+                    (let [o (first x)
+                          i (last x)
+                          r (boolean (o i))]
+                      (println o i "=>" r)
+                      r)) preds))))
      ([x y z]
-	(let [preds (for [o [p1 p2 p3] i [x y z]] [o i])]
-	  (and (map (fn [x]
-			(let [o (first x) 
-		      	      i (last x)
-			      r (boolean (o i))]
-		     	(println o i "=>" r) 
-			r)) preds))))
+      (let [preds (for [o [p1 p2 p3] i [x y z]] [o i])]
+        (and (map (fn [x]
+                    (let [o (first x)
+                          i (last x)
+                          r (boolean (o i))]
+                      (println o i "=>" r)
+                      r)) preds))))
      ([x y z & args] (boolean (and (ep3 x y z)
                                    (devery? #(and (p1 %) (p2 %) (p3 %)) args))))))
   ([p1 p2 p3 & ps]
