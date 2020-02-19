@@ -257,76 +257,50 @@
         (println p2 x "=>" r-p2-x)
         (and r-p1-x r-p2-x)))
      ([x y]
-      (let [r-p1-x (boolean (p1 x))
-            r-p1-y (boolean (p1 y))
-            r-p2-x (boolean (p2 x))
-            r-p2-y (boolean (p2 y))]
-        (println p1 x "=>" r-p1-x)
-        (println p1 y "=>" r-p1-y)
-        (println p2 x "=>" r-p2-x)
-        (println p2 y "=>" r-p2-y)
-        (and r-p1-x r-p1-y r-p2-x r-p2-y)))
+      (let [preds (for [o [p1 p2] i [x y]] [o i])]
+	(and (map (fn [x]
+		      (let [o (first x)
+			    i (last x)
+		     	    r (boolean (o i))]
+			(println o i "=>" r)
+			r)) preds))))
      ([x y z]
-      (let [r-p1-x (boolean (p1 x))
-            r-p1-y (boolean (p1 y))
-            r-p1-z (boolean (p1 z))
-            r-p2-x (boolean (p2 x))
-            r-p2-y (boolean (p2 y))
-            r-p2-z (boolean (p2 z))]
-        (println p1 x "=>" r-p1-x)
-        (println p1 y "=>" r-p1-y)
-        (println p1 z "=>" r-p1-z)
-        (println p2 x "=>" r-p2-x)
-        (println p2 y "=>" r-p2-y)
-        (println p2 z "=>" r-p2-z)
-        (and r-p1-x r-p1-y r-p1-z r-p2-x r-p2-y r-p2-z)))
+      (let [preds (for [o [p1 p2] i [x y z]] [o i])]
+	(and (map (fn [x]
+		      (let [o (first x)
+			    i (last x)
+			    r (boolean (o i))]
+			(println o i "=>" r)
+			r)) preds))))
      ([x y z & args] (boolean (and (ep2 x y z)
                                    (devery? #(and (p1 %) (p2 %)) args))))))
   ([p1 p2 p3]
    (fn ep3
      ([] true)
      ([x]
-      (let [r-p1-x (boolean (p1 x))
-            r-p2-x (boolean (p2 x))
-            r-p3-x (boolean (p3 x))]
-        (println p1 x "=>" r-p1-x)
-        (println p2 x "=>" r-p2-x)
-        (println p3 x "=>" r-p3-x)
-        (and r-p1-x r-p2-x r-p3-x)))
+      (let [preds (for [o [p1 p2 p3]] [o x])]
+	(and (map (fn [x] 
+		      (let [o (first x)
+			    i (last x)
+			    r (boolean (o i))]
+			(println o i "=>" r)
+			r)) preds))))
      ([x y]
-      (let [r-p1-x (boolean (p1 x))
-            r-p2-x (boolean (p2 x))
-            r-p3-x (boolean (p3 x))
-            r-p1-y (boolean (p1 y))
-            r-p2-y (boolean (p2 y))
-            r-p3-y (boolean (p3 y))]
-        (println p1 x "=>" r-p1-x)
-        (println p2 x "=>" r-p2-x)
-        (println p3 x "=>" r-p3-x)
-        (println p1 y "=>" r-p1-y)
-        (println p2 y "=>" r-p2-y)
-        (println p3 y "=>" r-p3-y)
-        (and r-p1-x r-p2-x r-p3-x r-p1-y r-p2-y r-p3-y)))
+      (let [preds (for [o [p1 p2 p3] i [x y]] [o i])]
+	(and (map (fn [x] 
+		      (let [o (first x)
+			    i (last x)
+			    r (boolean (o i))]
+			   (println o i "=>" r)
+			   r)) preds))))
      ([x y z]
-      (let [r-p1-x (boolean (p1 x))
-            r-p2-x (boolean (p2 x))
-            r-p3-x (boolean (p3 x))
-            r-p1-y (boolean (p1 y))
-            r-p2-y (boolean (p2 y))
-            r-p3-y (boolean (p3 y))
-            r-p1-z (boolean (p1 z))
-            r-p2-z (boolean (p2 z))
-            r-p3-z (boolean (p3 z))]
-        (println p1 x "=>" r-p1-x)
-        (println p2 x "=>" r-p2-x)
-        (println p3 x "=>" r-p3-x)
-        (println p1 y "=>" r-p1-y)
-        (println p2 y "=>" r-p2-y)
-        (println p3 y "=>" r-p3-y)
-        (println p1 z "=>" r-p1-z)
-        (println p2 z "=>" r-p2-z)
-        (println p3 z "=>" r-p3-z)
-        (and r-p1-x r-p2-x r-p3-x r-p1-y r-p2-y r-p3-y r-p1-z r-p2-z r-p3-z)))
+	(let [preds (for [o [p1 p2 p3] i [x y z]] [o i])]
+	  (and (map (fn [x]
+			(let [o (first x) 
+		      	      i (last x)
+			      r (boolean (o i))]
+		     	(println o i "=>" r) 
+			r)) preds))))
      ([x y z & args] (boolean (and (ep3 x y z)
                                    (devery? #(and (p1 %) (p2 %) (p3 %)) args))))))
   ([p1 p2 p3 & ps]
