@@ -210,3 +210,132 @@
      (when ~test
        ~@body
        (recur))))
+
+(defn devery?
+  [pred coll]
+  (cond
+    (nil? (seq coll)) true
+    (pred (first coll))
+    (do
+      (println pred (first coll) "=>" (pred (first coll)))
+      (recur pred (next coll)))
+    :else
+    (do
+      (println pred (first coll) "=> false")
+      false)))
+
+:(defn devery-pred
+  ([p]
+   (fn ep1
+     ([] true)
+     ([x]
+      (let [r-p-x (boolean (p x))]
+        (println p x "=>" r-p-x) r-p-x))
+     ([x y]
+      (let [r-p-x (boolean (p x))
+            r-p-y (boolean (p y))]
+        (println p x "=>" r-p-x)
+        (println p y "=>" r-p-y)
+        (and r-p-x r-p-y)))
+     ([x y z]
+      (let [r-p-x (boolean (p x))
+            r-p-y (boolean (p y))
+            r-p-z (boolean (p z))]
+        (println p x "=>" r-p-x)
+        (println p y "=>" r-p-y)
+        (println p z "=>" r-p-z)
+        (and r-p-x r-p-y r-p-z)))
+     ([x y z & args] (boolean (and (ep1 x y z)
+                                   (devery? p args))))))
+  ([p1 p2]
+   (fn ep2
+     ([] true)
+     ([x]
+      (let [r-p1-x (boolean (p1 x))
+            r-p2-x (boolean (p2 x))]
+        (println p1 x "=>" r-p1-x)
+        (println p2 x "=>" r-p2-x)
+        (and r-p1-x r-p2-x)))
+     ([x y]
+      (let [r-p1-x (boolean (p1 x))
+            r-p1-y (boolean (p1 y))
+            r-p2-x (boolean (p2 x))
+            r-p2-y (boolean (p2 y))]
+        (println p1 x "=>" r-p1-x)
+        (println p1 y "=>" r-p1-y)
+        (println p2 x "=>" r-p2-x)
+        (println p2 y "=>" r-p2-y)
+        (and r-p1-x r-p1-y r-p2-x r-p2-y)))
+     ([x y z]
+      (let [r-p1-x (boolean (p1 x))
+            r-p1-y (boolean (p1 y))
+            r-p1-z (boolean (p1 z))
+            r-p2-x (boolean (p2 x))
+            r-p2-y (boolean (p2 y))
+            r-p2-z (boolean (p2 z))]
+        (println p1 x "=>" r-p1-x)
+        (println p1 y "=>" r-p1-y)
+        (println p1 z "=>" r-p1-z)
+        (println p2 x "=>" r-p2-x)
+        (println p2 y "=>" r-p2-y)
+        (println p2 z "=>" r-p2-z)
+        (and r-p1-x r-p1-y r-p1-z r-p2-x r-p2-y r-p2-z)))
+     ([x y z & args] (boolean (and (ep2 x y z)
+                                   (devery? #(and (p1 %) (p2 %)) args))))))
+  ([p1 p2 p3]
+   (fn ep3
+     ([] true)
+     ([x]
+      (let [r-p1-x (boolean (p1 x))
+            r-p2-x (boolean (p2 x))
+            r-p3-x (boolean (p3 x))]
+        (println p1 x "=>" r-p1-x)
+        (println p2 x "=>" r-p2-x)
+        (println p3 x "=>" r-p3-x)
+        (and r-p1-x r-p2-x r-p3-x)))
+     ([x y]
+      (let [r-p1-x (boolean (p1 x))
+            r-p2-x (boolean (p2 x))
+            r-p3-x (boolean (p3 x))
+            r-p1-y (boolean (p1 y))
+            r-p2-y (boolean (p2 y))
+            r-p3-y (boolean (p3 y))]
+        (println p1 x "=>" r-p1-x)
+        (println p2 x "=>" r-p2-x)
+        (println p3 x "=>" r-p3-x)
+        (println p1 y "=>" r-p1-y)
+        (println p2 y "=>" r-p2-y)
+        (println p3 y "=>" r-p3-y)
+        (and r-p1-x r-p2-x r-p3-x r-p1-y r-p2-y r-p3-y)))
+     ([x y z]
+      (let [r-p1-x (boolean (p1 x))
+            r-p2-x (boolean (p2 x))
+            r-p3-x (boolean (p3 x))
+            r-p1-y (boolean (p1 y))
+            r-p2-y (boolean (p2 y))
+            r-p3-y (boolean (p3 y))
+            r-p1-z (boolean (p1 z))
+            r-p2-z (boolean (p2 z))
+            r-p3-z (boolean (p3 z))]
+        (println p1 x "=>" r-p1-x)
+        (println p2 x "=>" r-p2-x)
+        (println p3 x "=>" r-p3-x)
+        (println p1 y "=>" r-p1-y)
+        (println p2 y "=>" r-p2-y)
+        (println p3 y "=>" r-p3-y)
+        (println p1 z "=>" r-p1-z)
+        (println p2 z "=>" r-p2-z)
+        (println p3 z "=>" r-p3-z)
+        (and r-p1-x r-p2-x r-p3-x r-p1-y r-p2-y r-p3-y r-p1-z r-p2-z r-p3-z)))
+     ([x y z & args] (boolean (and (ep3 x y z)
+                                   (devery? #(and (p1 %) (p2 %) (p3 %)) args))))))
+  ([p1 p2 p3 & ps]
+   (let [ps (list* p1 p2 p3 ps)]
+     (fn epn
+       ([] true)
+       ([x] (devery? #(% x) ps))
+       ([x y] (devery? #(and (% x) (% y)) ps))
+       ([x y z] (devery? #(and (% x) (% y) (% z)) ps))
+       ([x y z & args] (boolean (and (epn x y z)
+                                     (devery? #(devery? % args) ps))))))))
+
