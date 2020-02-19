@@ -224,7 +224,7 @@
       (println pred (first coll) "=> false")
       false)))
 
-:(defn devery-pred
+(defn devery-pred
   ([p]
    (fn ep1
      ([] true)
