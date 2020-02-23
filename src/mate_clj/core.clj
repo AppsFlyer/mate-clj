@@ -213,6 +213,72 @@
        ~@body
        (recur))))
 
+(defn dkeep
+  ([f]
+   (fn [rf]
+     (fn
+       ([] (rf))
+       ([result] (rf result))
+       ([result input]
+        (let [v (f input)]
+          (println f input arrow-str v)
+          (if (nil? v)
+            result
+            (rf result v)))))))
+  ([f coll]
+   (when-let [s (seq coll)]
+     (if (chunked-seq? s)
+       (let [c (chunk-first s)
+             size (count c)
+             b (chunk-buffer size)]
+         (dotimes [i size]
+           (let [x (f (.nth c i))]
+             (println f (.nth c i) arrow-str x)
+             (when-not (nil? x)
+               (chunk-append b x))))
+         (chunk-cons (chunk b) (keep f (chunk-rest s))))
+       (let [x (f (first s))]
+         (println f (first s) arrow-str x)
+         (if (nil? x)
+           (dkeep f (rest s))
+           (cons x (dkeep f (rest s)))))))))
+
+(defn dkeep-indexed
+  ([f]
+   (fn [rf]
+     (let [iv (volatile! -1)]
+       (fn
+         ([] (rf))
+         ([result] (rf result))
+         ([result input]
+          (let [i (vswap! iv inc)
+                v (f i input)]
+            (println f i input arrow-str v)
+            (if (nil? v)
+              result
+              (rf result v))))))))
+  ([f coll]
+   (letfn [(keepi [idx coll]
+             (when-let [s (seq coll)]
+               (if (chunked-seq? s)
+                 (let [c (chunk-first s)
+                       size (count c)
+                       b (chunk-buffer size)]
+                   (dotimes [i size]
+                     (let [ind (+ idx i)
+                           nth-val (.nth c i)
+                           x (f ind nth-val)]
+                       (println f ind nth-val arrow-str x)
+                       (when-not (nil? x)
+                         (chunk-append b x))))
+                   (chunk-cons (chunk b) (keepi (+ idx size) (chunk-rest s))))
+                 (let [x (f idx (first s))]
+                   (println f idx (first s) arrow-str x)
+                   (if (nil? x)
+                     (keepi (inc idx) (rest s))
+                     (cons x (keepi (inc idx) (rest s))))))))]
+     (keepi 0 coll))))
+
 (defn devery?
   [pred coll]
   (cond
@@ -284,69 +350,4 @@
        ([x y z & args] (boolean (and (epn x y z)
                                      (devery? #(devery? % args) ps))))))))
 
-(defn dkeep
-  ([f]
-   (fn [rf]
-     (fn
-       ([] (rf))
-       ([result] (rf result))
-       ([result input]
-        (let [v (f input)]
-          (println f input arrow-str v)
-          (if (nil? v)
-            result
-            (rf result v)))))))
-  ([f coll]
-   (when-let [s (seq coll)]
-     (if (chunked-seq? s)
-       (let [c (chunk-first s)
-             size (count c)
-             b (chunk-buffer size)]
-         (dotimes [i size]
-           (let [x (f (.nth c i))]
-             (println f (.nth c i) arrow-str x)
-             (when-not (nil? x)
-               (chunk-append b x))))
-         (chunk-cons (chunk b) (keep f (chunk-rest s))))
-       (let [x (f (first s))]
-         (println f (first s) arrow-str x)
-         (if (nil? x)
-           (dkeep f (rest s))
-           (cons x (dkeep f (rest s)))))))))
-
-(defn dkeep-indexed
-  ([f]
-   (fn [rf]
-     (let [iv (volatile! -1)]
-       (fn
-         ([] (rf))
-         ([result] (rf result))
-         ([result input]
-          (let [i (vswap! iv inc)
-                v (f i input)]
-            (println f i input arrow-str v)
-            (if (nil? v)
-              result
-              (rf result v))))))))
-  ([f coll]
-   (letfn [(keepi [idx coll]
-             (when-let [s (seq coll)]
-               (if (chunked-seq? s)
-                 (let [c (chunk-first s)
-                       size (count c)
-                       b (chunk-buffer size)]
-                   (dotimes [i size]
-                     (let [ind (+ idx i)
-                           nth-val (.nth c i)
-                           x (f ind nth-val)]
-                       (println f ind nth-val arrow-str x)
-                       (when-not (nil? x)
-                         (chunk-append b x))))
-                   (chunk-cons (chunk b) (keepi (+ idx size) (chunk-rest s))))
-                 (let [x (f idx (first s))]
-                   (println f idx (first s) arrow-str x)
-                   (if (nil? x)
-                     (keepi (inc idx) (rest s))
-                     (cons x (keepi (inc idx) (rest s))))))))]
-     (keepi 0 coll))))
 
