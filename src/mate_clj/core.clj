@@ -350,4 +350,3 @@
        ([x y z & args] (boolean (and (epn x y z)
                                      (devery? #(devery? % args) ps))))))))
 
-
