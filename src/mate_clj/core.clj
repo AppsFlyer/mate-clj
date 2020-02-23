@@ -228,25 +228,19 @@
 
 (def dnot-every? (comp not devery?))
 
-(defn devery-pred-print [preds]
-   (every? true? (map (fn [[o i]]
-                (let [r (boolean (o i))]
-                   (println o i arrow-str r)
-                   r)) preds)))
+(defn- devery-pred-print [preds]
+   (every? true? (map (fn [[o i]] (let [r (boolean (o i))] (println o i arrow-str r) r)) preds)))
 
 (defn devery-pred
   ([p]
    (fn ep1
      ([] true)
      ([x]
-      (let [r-p-x (boolean (p x))]
-        (println p x arrow-str r-p-x) r-p-x))
+      (let [preds [[p x]]]
+        (devery-pred-print preds)))
      ([x y]
-      (let [r-p-x (boolean (p x))
-            r-p-y (boolean (p y))]
-        (println p x arrow-str r-p-x)
-        (println p y arrow-str r-p-y)
-        (and r-p-x r-p-y)))
+      (let [preds [[p x] [p y]]]
+	(devery-pred-print preds)))
      ([x y z]
       (let [preds (for [i [x y z]] [p i])]
 	(devery-pred-print preds)))
