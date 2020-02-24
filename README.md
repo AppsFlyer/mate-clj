@@ -107,6 +107,31 @@ user=> (mate/dfilter even? [1  2  3  4  5  6])
 #function[user/eval15654/fn--15655] 4 5 => nil
 (2 4) ;the returned value
 
+(mate/devery? #{1 2} [1 2 3])
+#{1 2} 1 => 1
+#{1 2} 2 => 2
+#{1 2} 3 => false
+false ;the returned value
+
+(mate/dnot-every? #{1 2} [1 2 3])
+#{1 2} 1 => 1
+#{1 2} 2 => 2
+#{1 2} 3 => false
+true ;the returned value
+
+((mate/devery-pred number? even? pos?) 4 6 8 9)
+#function[clojure.core/number?] 4 => true
+#function[clojure.core/number?] 6 => true
+#function[clojure.core/number?] 8 => true
+#function[clojure.core/even?] 4 => true
+#function[clojure.core/even?] 6 => true
+#function[clojure.core/even?] 8 => true
+#function[clojure.core/pos?] 4 => true
+#function[clojure.core/pos?] 6 => true
+#function[clojure.core/pos?] 8 => true
+#function[mate-clj.core/devery-pred/ep3--9552/fn--9612] 9 => false
+false ;the returned value
+
 ```
 
 
