@@ -14,7 +14,7 @@ Mate-clj is a Clojure library that will help you to control the flow of core mac
 
 Add the dependency to your project.clj:
 ```clojure
-[mate-clj "0.1.7"]
+[mate-clj "0.1.8"]
 ```
 
 ## Usage Example:
@@ -58,7 +58,7 @@ n => 1
 (+ n 2 3 4) => 13
 13 ;the returned value
 
-user=> (dfilter even? [1  2  3  4  5  6])
+user=> (mate/dfilter even? [1  2  3  4  5  6])
 #function[clojure.core/even?] 1 => false
 #function[clojure.core/even?] 2 => true
 #function[clojure.core/even?] 3 => false
@@ -66,6 +66,47 @@ user=> (dfilter even? [1  2  3  4  5  6])
 #function[clojure.core/even?] 5 => false
 #function[clojure.core/even?] 6 => true
 (2 4 6) ;the returned value
+
+(mate/dtake-while neg? [-2 -1 0 1 2 3])
+#function[clojure.core/neg?] -2 => true
+#function[clojure.core/neg?] -1 => true
+#function[clojure.core/neg?] 0 => false
+(-2 -1) ;the returned value
+
+(mate/ddrop-while neg? [-1 -2 -6 -7 1 2 3 4 -5 -6 0 1])
+#function[clojure.core/neg?] -1 => true
+#function[clojure.core/neg?] -2 => true
+#function[clojure.core/neg?] -6 => true
+#function[clojure.core/neg?] -7 => true
+#function[clojure.core/neg?] 1 => false
+(1 2 3 4 -5 -6 0 1) ;the returned value
+
+(mate/dsplit-with (partial > 3) [1 2 3 2 1])
+#function[clojure.core/partial/fn--5824] 1 => true
+#function[clojure.core/partial/fn--5824] 2 => true
+#function[clojure.core/partial/fn--5824] 3 => false
+#function[clojure.core/partial/fn--5824] 1 => true
+#function[clojure.core/partial/fn--5824] 2 => true
+#function[clojure.core/partial/fn--5824] 3 => false
+[(1 2) (3 2 1)] ;the returned value
+
+(mate/dkeep (fn [x] (if (< 0 x) x nil)) [1 2 3 4 5 -10])
+#function[user/eval15658/fn--15659] 1 => 1
+#function[user/eval15658/fn--15659] 2 => 2
+#function[user/eval15658/fn--15659] 3 => 3
+#function[user/eval15658/fn--15659] 4 => 4
+#function[user/eval15658/fn--15659] 5 => 5
+#function[user/eval15658/fn--15659] -10 => nil
+(1 2 3 4 5)  ;the returned value
+
+(mate/dkeep-indexed #(if (odd? %1) %2 nil) [1 2 3 4 5])
+#function[user/eval15654/fn--15655] 0 1 => nil
+#function[user/eval15654/fn--15655] 1 2 => 2
+#function[user/eval15654/fn--15655] 2 3 => nil
+#function[user/eval15654/fn--15655] 3 4 => 4
+#function[user/eval15654/fn--15655] 4 5 => nil
+(2 4) ;the returned value
+
 ```
 
 
