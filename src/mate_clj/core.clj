@@ -279,3 +279,74 @@
                      (cons x (keepi (inc idx) (rest s))))))))]
      (keepi 0 coll))))
 
+(defn devery?
+  [pred coll]
+  (cond
+    (nil? (seq coll)) true
+    (pred (first coll))
+    (do
+      (println pred (first coll) arrow-str (pred (first coll)))
+      (recur pred (next coll)))
+    :else
+    (do
+      (println pred (first coll) arrow-str "false")
+      false)))
+
+(def dnot-every? (comp not devery?))
+
+(defn- devery-pred-print [preds]
+   (every? true? (map (fn [[o i]] (let [r (boolean (o i))] (println o i arrow-str r) r)) preds)))
+
+(defn devery-pred
+  ([p]
+   (fn ep1
+     ([] true)
+     ([x]
+      (let [preds [[p x]]]
+        (devery-pred-print preds)))
+     ([x y]
+      (let [preds [[p x] [p y]]]
+	(devery-pred-print preds)))
+     ([x y z]
+      (let [preds (for [i [x y z]] [p i])]
+	(devery-pred-print preds)))
+     ([x y z & args] (boolean (and (ep1 x y z)
+                                   (devery? p args))))))
+  ([p1 p2]
+   (fn ep2
+     ([] true)
+     ([x]
+      (let [preds (for [o [p1 p2]] [o x])]
+        (devery-pred-print preds)))
+     ([x y]
+      (let [preds (for [o [p1 p2] i [x y]] [o i])]
+        (devery-pred-print preds)))
+     ([x y z]
+      (let [preds (for [o [p1 p2] i [x y z]] [o i])]
+        (devery-pred-print preds)))
+     ([x y z & args] (boolean (and (ep2 x y z)
+                                   (devery? #(and (p1 %) (p2 %)) args))))))
+  ([p1 p2 p3]
+   (fn ep3
+     ([] true)
+     ([x]
+      (let [preds (for [o [p1 p2 p3]] [o x])]
+        (devery-pred-print preds)))
+     ([x y]
+      (let [preds (for [o [p1 p2 p3] i [x y]] [o i])]
+        (devery-pred-print preds)))
+     ([x y z]
+      (let [preds (for [o [p1 p2 p3] i [x y z]] [o i])]
+        (devery-pred-print preds)))
+     ([x y z & args] (boolean (and (ep3 x y z)
+                                   (devery? #(and (p1 %) (p2 %) (p3 %)) args))))))
+  ([p1 p2 p3 & ps]
+   (let [ps (list* p1 p2 p3 ps)]
+     (fn epn
+       ([] true)
+       ([x] (devery? #(% x) ps))
+       ([x y] (devery? #(and (% x) (% y)) ps))
+       ([x y z] (devery? #(and (% x) (% y) (% z)) ps))
+       ([x y z & args] (boolean (and (epn x y z)
+                                     (devery? #(devery? % args) ps))))))))
+
