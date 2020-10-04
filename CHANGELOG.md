@@ -1,5 +1,20 @@
 # Change Log
 
+## 1.0.0
+### Fixed
+- Support for printing the flow for macros when calling them from other functions and not just directly
+
+## 0.1.9
+### Added
+- Support for `every?` as `devery?`
+- Support for `not-every?` as `dnot-every?`
+- Support for `every-pred` as `devery-pred`
+
+## 0.1.8
+### Added
+- Support for `keep` as `dkeep`
+- Support for `keep-indexed` as `dkeep-indexed`
+
 ## 0.1.7
 ### Added
 - Support for `while` as `dwhile`

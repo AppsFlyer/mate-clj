@@ -2,57 +2,64 @@
 
 (def ^:private ^:const arrow-str "=>")
 
+(defn- println-macro [threaded result]
+  `(println (quote ~threaded) ~arrow-str ~result))
+
 (defmacro d->
   [x & forms]
-  (loop [x x, forms forms]
-    (if forms
-      (let [form (first forms)
-            threaded (if (seq? form)
-                       (with-meta `(~(first form) ~x ~@(next form)) (meta form))
-                       (list form x))]
-        (println threaded arrow-str (eval threaded))
-        (recur threaded (next forms)))
-      x)))
-
-(defmacro d->>
-   [x & forms]
-   (loop [x x, forms forms]
-     (if forms
-       (let [form (first forms)
-             threaded (if (seq? form)
-                        (with-meta `(~(first form) ~@(next form)  ~x) (meta form))
-                        (list form x))]
-         (println threaded arrow-str (eval threaded))
-         (recur threaded (next forms)))
-       x)))
-
-(defmacro dsome-> [x & forms]
-  (loop [x x, forms forms]
+  (loop [x x, forms forms, macro-expansion (list)]
     (if forms
       (let [form (first forms)
             threaded (if (seq? form)
                        (with-meta `(~(first form) ~x ~@(next form)) (meta form))
                        (list form x))
-            expr (eval threaded)]
-          (println threaded arrow-str expr)
-          (if-not (nil? expr)
-            (recur threaded (next forms))
-            nil))
-      x)))
+            print-to-be-evaluated (println-macro threaded (eval threaded))
+            macro-expanded (conj macro-expansion print-to-be-evaluated)]
+        (recur threaded (next forms) macro-expanded))
+      (conj `(do ~@(reverse macro-expansion) ~x)))))
+
+(defmacro d->>
+   [x & forms]
+   (loop [x x, forms forms, macro-expansion (list)]
+     (if forms
+       (let [form (first forms)
+             threaded (if (seq? form)
+                        (with-meta `(~(first form) ~@(next form) ~x) (meta form))
+                        (list form x))
+             print-to-be-evaluated (println-macro threaded (eval threaded))
+             macro-expanded (conj macro-expansion print-to-be-evaluated)]
+         (recur threaded (next forms) macro-expanded))
+      (conj `(do ~@(reverse macro-expansion) ~x)))))
+
+(defmacro dsome-> [x & forms]
+  (loop [x x, forms forms, macro-expansion (list)]
+    (if forms
+      (let [form (first forms)
+            threaded (if (seq? form)
+                       (with-meta `(~(first form) ~x ~@(next form)) (meta form))
+                       (list form x))
+            expr (eval threaded)
+            print-to-be-evaluated (println-macro threaded expr)
+            macro-expanded (conj macro-expansion print-to-be-evaluated)]
+        (if-not (nil? expr)
+          (recur threaded (next forms) macro-expanded)
+          (conj `(do ~@(reverse macro-expanded) nil))))
+      (conj `(do ~@(reverse macro-expansion) ~x)))))
 
 (defmacro dsome->> [x & forms]
-  (loop [x x, forms forms]
+  (loop [x x, forms forms, macro-expansion (list)]
      (if forms
        (let [form (first forms)
              threaded (if (seq? form)
                         (with-meta `(~(first form) ~@(next form)  ~x) (meta form))
                         (list form x))
-             expr (eval threaded)]
-           (println threaded arrow-str expr)
-           (if-not (nil? expr)
-             (recur threaded (next forms))
-             nil))
-       x)))
+             expr (eval threaded)
+             print-to-be-evaluated (println-macro threaded expr)
+             macro-expanded (conj macro-expansion print-to-be-evaluated)]
+         (if-not (nil? expr)
+           (recur threaded (next forms) macro-expanded)
+           (conj `(do ~@(reverse macro-expanded) nil))))
+      (conj `(do ~@(reverse macro-expansion) ~x)))))
 
 (defn dsome
   [pred coll]
@@ -76,7 +83,7 @@
 (defmacro dcond->
   [expr & clauses]
   (assert (even? (count clauses)))
-  (loop [x expr, clauses clauses]
+  (loop [x expr, clauses clauses, macro-expansion (list)]
     (if clauses
       (let [test (first clauses)
             step (second clauses)
@@ -85,15 +92,20 @@
                        (if (seq? step)
                          (with-meta `(~(first step) ~x ~@(next step)) (meta step))
                          (list step x))
-                       x)]
-        (when pass-test (println threaded arrow-str (eval threaded)))
-        (recur threaded (next (next clauses))))
-      x)))
+                       x)
+            print-to-be-evaluated (println-macro threaded (eval threaded))
+            macro-expanded (if pass-test
+                             (conj macro-expansion print-to-be-evaluated)
+                             macro-expansion)]
+        (when pass-test
+          (println-macro threaded (eval threaded)))
+        (recur threaded (next (next clauses)) macro-expanded))
+      (conj `(do ~@(reverse macro-expansion) ~x)))))
 
 (defmacro dcond->>
   [expr & clauses]
   (assert (even? (count clauses)))
-  (loop [x expr, clauses clauses]
+  (loop [x expr, clauses clauses, macro-expansion (list)]
     (if clauses
       (let [test (first clauses)
             step (second clauses)
@@ -102,10 +114,15 @@
                        (if (seq? step)
                          (with-meta `(~(first step) ~@(next step) ~x) (meta step))
                          (list step x))
-                       x)]
-        (when pass-test (println threaded arrow-str (eval threaded)))
-        (recur threaded (next (next clauses))))
-      x)))
+                       x)
+            print-to-be-evaluated (println-macro threaded (eval threaded))
+            macro-expanded (if pass-test
+                             (conj macro-expansion print-to-be-evaluated)
+                             macro-expansion)]
+        (when pass-test
+          (println-macro threaded (eval threaded)))
+        (recur threaded (next (next clauses)) macro-expanded))
+      (conj `(do ~@(reverse macro-expansion) ~x)))))
 
 (defmacro das->
   [expr name & clauses]
@@ -349,4 +366,3 @@
        ([x y z] (devery? #(and (% x) (% y) (% z)) ps))
        ([x y z & args] (boolean (and (epn x y z)
                                      (devery? #(devery? % args) ps))))))))
-
