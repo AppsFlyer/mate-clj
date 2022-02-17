@@ -1,4 +1,4 @@
-(defproject mate-clj "1.0.0"
+(defproject mate-clj "1.0.1"
   :description "A Clojure library that will help you debug your code and understand the flow."
   :url "https://github.com/AppsFlyer/mate-clj"
   :license {:name "Eclipse Public License"
