@@ -14,7 +14,7 @@ Mate-clj is a Clojure library that will help you to control the flow of core mac
 
 Add the dependency to your project.clj:
 ```clojure
-[mate-clj "1.0.0"]
+[mate-clj "1.0.1"]
 ```
 
 ## Usage Example:
