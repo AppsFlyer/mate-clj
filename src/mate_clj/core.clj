@@ -128,7 +128,7 @@
   [expr name & clauses]
   (let [c (gensym) s (gensym) t (gensym)]
     `(let [~name ~expr]
-       (println '~name arrow-str ~expr)
+       (println '~name ~arrow-str ~expr)
        (loop [~name ~expr, ~c '~clauses]
          (if ~c
            (let [~s (first ~c)
@@ -138,7 +138,7 @@
                         (= ~s '~name)
                         ~name
                         ~s))]
-             (println ~s arrow-str (eval ~t))
+             (println ~s ~arrow-str (eval ~t))
              (recur (eval ~t) (next ~c)))
           ~name)))))
 
